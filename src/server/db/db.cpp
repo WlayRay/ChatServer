@@ -1,5 +1,6 @@
 #include "db.h"
 #include <muduo/base/Logging.h>
+#include <memory>
 
 // 数据库配置信息
 static string server = "127.0.0.1";
@@ -23,8 +24,8 @@ MySQL::~MySQL()
 // 连接数据库
 bool MySQL::connect()
 {
-    MYSQL *p = mysql_real_connect(_conn, server.c_str(), user.c_str(),
-                                  password.c_str(), dbname.c_str(), 3306, nullptr, 0);
+    MYSQL* p = mysql_real_connect(_conn, server.c_str(), user.c_str(),
+                                             password.c_str(), dbname.c_str(), 3306, nullptr, 0);
     if (p != nullptr)
     {
         // 设置C/C++字符编码（默认为ASCII编码）
@@ -37,6 +38,7 @@ bool MySQL::connect()
         LOG_INFO << " 连接数据库失败！ ";
         return false;
     }
+    mysql_close(p);
 }
 
 bool MySQL::update(string sql)
