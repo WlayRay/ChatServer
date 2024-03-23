@@ -30,25 +30,27 @@ bool MySQL::connect()
         // 设置C/C++字符编码（默认为ASCII编码）
         mysql_query(_conn, "set name utf8mb4");
         LOG_INFO << " 连接数据库成功！ ";
+        return true;
     }
-    else{
+    else
+    {
         LOG_INFO << " 连接数据库失败！ ";
+        return false;
     }
-    return p;
 }
 
-bool MySQL::update(string sql)  
-{  
-    if (mysql_query(_conn, sql.c_str()))  
-    {  
-        LOG_ERROR << __FILE__ << ":" << __LINE__ << ":" << mysql_error(_conn) << " 更新失败！";  
-        return false;  
-    }  
-    LOG_INFO << "更新成功！";  
-    return true;  
+bool MySQL::update(string sql)
+{
+    if (mysql_query(_conn, sql.c_str()))
+    {
+        LOG_ERROR << __FILE__ << ":" << __LINE__ << ":" << mysql_error(_conn) << " 更新失败！";
+        return false;
+    }
+    LOG_INFO << "更新成功！";
+    return true;
 }
 
-MYSQL_RES* MySQL::query(string sql)
+MYSQL_RES *MySQL::query(string sql)
 {
     if (mysql_query(_conn, sql.c_str()))
     {
@@ -67,7 +69,7 @@ MYSQL_RES* MySQL::query(string sql)
     }
 }
 
-MYSQL* MySQL::getConnection()
+MYSQL *MySQL::getConnection()
 {
     return _conn;
 }

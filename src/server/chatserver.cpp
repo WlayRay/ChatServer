@@ -50,7 +50,7 @@ void ChatServer::onMessage(const TcpConnectionPtr &conn,
     string buf = buffer->retrieveAllAsString();
     // 数据的反序列化
     json js = json::parse(buf);
-
+    
     MsgHandler handler = ChatService::instance()->getHandler(js["msgid"].get<int>());
     // 回调消息绑定好的事件处理器，来执行相应的业务处理
     handler(conn, js, time);
