@@ -10,6 +10,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 #include "redis.hpp"
+#include "generatetoken.hpp"
 #include "usermodel.hpp"
 #include "offlinemessagemodel.hpp"
 #include "friendmodel.hpp"
