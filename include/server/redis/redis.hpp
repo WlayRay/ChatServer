@@ -15,6 +15,9 @@ private:
     // hiredis同步上下文对象，负责subscribe消息
     redisContext *_subscribe_context;
 
+    // token同步上下文对象，负责将token存入redis中
+    redisContext *_token_context;
+
     // 回调操作，收到订阅的消息，给service层上报
     function<void(int, string)> _notify_message_handler;
 
@@ -39,6 +42,9 @@ public:
 
     // 初始化业务层上报通道消息的回调对象
     void init_notify_handler(function<void(int, string)> fn);
+
+    // 将token存储到redis中
+    bool setTokenWithExpiration(const int uerid, const char *token, const int expirationSeconds);
 };
 
 #endif

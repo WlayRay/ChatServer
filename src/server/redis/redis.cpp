@@ -1,5 +1,6 @@
 #include "redis.hpp"
 #include <iostream>
+#include <string.h>
 using namespace std;
 
 Redis::Redis()
@@ -18,6 +19,11 @@ Redis::~Redis()
     {
         redisFree(_subscribe_context);
     }
+
+    if (_token_context != nullptr)
+    {
+        redisFree(_token_context);
+    }
 }
 
 bool Redis::connect()
@@ -33,6 +39,14 @@ bool Redis::connect()
     // 负责subscribe订阅消息的上下文连接
     _subscribe_context = redisConnect("127.0.0.1", 6379);
     if (nullptr == _subscribe_context)
+    {
+        cerr << "连接redis失败！" << endl;
+        return false;
+    }
+
+    // token同步上下文对象，负责将token存入redis中
+    _token_context = redisConnect("127.0.0.1", 6379);
+    if (nullptr == _token_context)
     {
         cerr << "连接redis失败！" << endl;
         return false;
@@ -94,7 +108,7 @@ bool Redis::unsubscribe(int channel)
         {
             cerr << "unsubscribe命令执行失败！" << endl;
             return false;
-        }   
+        }
     }
     return true;
 }
@@ -118,4 +132,17 @@ void Redis::observer_channel_message()
 void Redis::init_notify_handler(function<void(int, string)> fn)
 {
     this->_notify_message_handler = fn;
+}
+
+// 将token存储到redis中
+bool Redis::setTokenWithExpiration(const int userid, const char *token, const int expirationSeconds)
+{
+    redisReply *reply = (redisReply *)redisCommand(_token_context, "SETEX %d %d %s", userid, expirationSeconds, token);
+    if (reply == NULL)
+    {
+        return false;
+    }
+    bool success = (reply->type == REDIS_REPLY_STATUS && strcmp(reply->str, "OK") == 0);
+    freeReplyObject(reply);
+    return success;
 }

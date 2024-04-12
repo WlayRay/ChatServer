@@ -97,11 +97,21 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
             // id用户登录成功后，向redis订阅channel(id)
             _redis.subscribe(userid);
 
+            // 生成Token
+            string token = GenerateToken::getInstance()->generateToken(userid);
+            if (!_redis.setTokenWithExpiration(userid, token.c_str(), 180))
+            {
+                LOG_INFO << "未能将token存入redis中！";
+            }
+            else
+                LOG_INFO << "生成的Token为： " << token;
+
             json response;
             response["msgid"] = LOGIN_MSG_ACK;
             response["error"] = 0;
             response["id"] = userid;
             response["name"] = user.getName();
+            response["token"] = token;
 
             // 查询用户是否有离线消息
             vector<string> vec = _offlineMsgModel.query(id);
