@@ -99,12 +99,12 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
 
             // 生成Token
             string token = GenerateToken::getInstance()->generateToken(userid);
-            if (!_redis.setTokenWithExpiration(userid, token.c_str(), 180))
+            if (!_redis.setEx(userid, token.c_str(), 180))
             {
                 LOG_INFO << "未能将token存入redis中！";
             }
             else
-                LOG_INFO << "生成的Token为： " << token;
+                LOG_INFO << "生成的Token为： " << _redis.get(userid);
 
             json response;
             response["msgid"] = LOGIN_MSG_ACK;

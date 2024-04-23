@@ -20,9 +20,9 @@ Redis::~Redis()
         redisFree(_subscribe_context);
     }
 
-    if (_token_context != nullptr)
+    if (_string_context != nullptr)
     {
-        redisFree(_token_context);
+        redisFree(_string_context);
     }
 }
 
@@ -45,8 +45,8 @@ bool Redis::connect()
     }
 
     // token同步上下文对象，负责将token存入redis中
-    _token_context = redisConnect("127.0.0.1", 6379);
-    if (nullptr == _token_context)
+    _string_context = redisConnect("127.0.0.1", 6379);
+    if (nullptr == _string_context)
     {
         cerr << "连接redis失败！" << endl;
         return false;
@@ -135,9 +135,9 @@ void Redis::init_notify_handler(function<void(int, string)> fn)
 }
 
 // 将token存储到redis中
-bool Redis::setTokenWithExpiration(const int userid, const char *token, const int expirationSeconds)
+bool Redis::setEx(const int key, const char *value, const int expirationSeconds)
 {
-    redisReply *reply = (redisReply *)redisCommand(_token_context, "SETEX %d %d %s", userid, expirationSeconds, token);
+    redisReply *reply = (redisReply *)redisCommand(_string_context, "SETEX %d %d %s", key, expirationSeconds, value);
     if (reply == NULL)
     {
         return false;
@@ -145,4 +145,17 @@ bool Redis::setTokenWithExpiration(const int userid, const char *token, const in
     bool success = (reply->type == REDIS_REPLY_STATUS && strcmp(reply->str, "OK") == 0);
     freeReplyObject(reply);
     return success;
+}
+
+char *Redis::get(const int key)
+{
+    redisReply *reply = (redisReply *)redisCommand(_string_context, "GET %d", key);
+    if (!reply)
+    {
+        cerr << "get命令执行失败！" << endl;
+        return nullptr;
+    }
+    char *token = strdup(reply->str);
+    freeReplyObject(reply);
+    return token;
 }
