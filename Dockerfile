@@ -26,11 +26,14 @@ COPY --chmod=+x . /usr/src/ChatServer
 COPY conf/nginx.conf /etc/nginx/nginx.conf  
 
 # 暴露端口  
-EXPOSE 8001 6000  
+EXPOSE 8001 6000
 
 # 构建你的项目  
 WORKDIR /usr/src/ChatServer  
 RUN ./autobuild.sh  
 
+
+WORKDIR /usr/src/ChatServer/bin
 # 设置入口点命令，确保start.sh不会立即退出  
-ENTRYPOINT ["/usr/src/ChatServer/start.sh"]
+CMD ["./ChatServer", "127.0.0.1", "6000"]
+# ENTRYPOINT ["/usr/src/ChatServer/start.sh"]
