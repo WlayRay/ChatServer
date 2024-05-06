@@ -3,5 +3,5 @@
 
 autobuild.sh为项目编译脚本，start.sh为启动脚本
 
-entrypoint为Docker镜像执行脚本
+entrypoint.sh为Docker镜像执行脚本
 
